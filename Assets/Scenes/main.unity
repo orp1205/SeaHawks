@@ -356,6 +356,51 @@ MonoBehaviour:
   spinFactor: 0.0004
   initialSpin: {x: 0, y: -30, z: 0}
   arcHeight: 1.2
+--- !u!1 &1837650499
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1837650501}
+  - component: {fileID: 1837650500}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1837650500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837650499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b5068e9b35adc7468f9bed8139b50bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  totalScore: 0
+--- !u!4 &1837650501
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837650499}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.2446342, y: 9.115969, z: -3.0312283}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &1841898254
 LineRenderer:
   serializedVersion: 2
@@ -641,6 +686,7 @@ GameObject:
   - component: {fileID: 2878013519775662904}
   - component: {fileID: 2878013519071019733}
   - component: {fileID: 2878013519591113511}
+  - component: {fileID: 2878013519775662905}
   m_Layer: 0
   m_Name: dunkTriggerTop
   m_TagString: 
@@ -1122,6 +1168,7 @@ GameObject:
   - component: {fileID: 2878013518752252543}
   - component: {fileID: 2878013519591113515}
   - component: {fileID: 2878013519674999600}
+  - component: {fileID: 2878013519674999601}
   m_Layer: 0
   m_Name: BasketRingJoint
   m_TagString: 
@@ -1675,6 +1722,7 @@ GameObject:
   - component: {fileID: 2878013520966845276}
   - component: {fileID: 2878013520966845275}
   - component: {fileID: 2878013519591113516}
+  - component: {fileID: 2878013520966845278}
   m_Layer: 0
   m_Name: basketRing
   m_TagString: 
@@ -2360,7 +2408,7 @@ Transform:
   m_GameObject: {fileID: 2878013518701920265}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.90999985, z: -2.6599998}
+  m_LocalPosition: {x: 0, y: -0.09, z: -2.6599998}
   m_LocalScale: {x: 2.1, y: 0.3, z: 2.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6470,6 +6518,23 @@ HingeJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &2878013519674999601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2878013518701920491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27c65270764d98940976da09cd11334b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  normalScore: 2
+  perfectScore: 3
+  rimHitWindow: 0.3
+  fireParticle: {fileID: 2878013522007032674}
+  perfectParticle: {fileID: 2878013522007032693}
 --- !u!65 &2878013519775662897
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6638,6 +6703,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2878013519775662905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2878013518701920265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5331b891d2ebb714b82cc312afcc04d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoop: {fileID: 2878013519674999601}
+  rimHitDetector: {fileID: 2878013520966845278}
 --- !u!65 &2878013519775662906
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7755,6 +7834,20 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 0
   m_Center: {x: 0, y: 0.25, z: -4.28}
+--- !u!114 &2878013520966845278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2878013518701920688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a82dcd936a0d9154fb7a4ef5a06bd72f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoop: {fileID: 2878013519674999601}
+  missCheckDelay: 0.3
 --- !u!137 &2878013520983622494
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -51880,3 +51973,4 @@ SceneRoots:
   - {fileID: 2878013518752252549}
   - {fileID: 2878013518752252560}
   - {fileID: 2878013518752252569}
+  - {fileID: 1837650501}

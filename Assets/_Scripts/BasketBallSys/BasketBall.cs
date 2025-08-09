@@ -6,13 +6,13 @@ public class BasketBall : MonoBehaviour
     private Rigidbody rb;
 
     [Header("Physics Parameters")]
-    public float ballMass = 0.62f;     // kg
-    public float ballRadius = 0.12f;   // meters
+    public float ballMass = 0.62f;    
+    public float ballRadius = 0.12f;  
     public float dragCoefficient = 0.47f;
     public float airDensity = 1.225f;
     public float spinFactor = 0.0004f;
-    public Vector3 initialSpin = new Vector3(0, -30f, 0); // deg/sec
-    public float arcHeight = 1.2f;     // upward throw adjustment
+    public Vector3 initialSpin = new Vector3(0, -30f, 0);
+    public float arcHeight = 1.2f;   
 
     private void Awake()
     {
