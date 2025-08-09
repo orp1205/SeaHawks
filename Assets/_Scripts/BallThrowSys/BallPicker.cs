@@ -3,29 +3,36 @@ using UnityEngine;
 [System.Serializable]
 public class SafeZone
 {
-    public float left = -1f;   // Left boundary on interaction plane
-    public float right = 1f;   // Right boundary on interaction plane
-    public float top = 1f;     // Top boundary on interaction plane
-    public float bottom = -1f; // Bottom boundary on interaction plane
+    public float left = -1f;
+    public float right = 1f;
+    public float top = 1f;
+    public float bottom = -1f;
 }
 
 public class BallPicker : MonoBehaviour
 {
-    public Camera cam;                  // Main camera
-    public LayerMask interactionLayer;  // Layer for interaction zone (plane)
-    public LayerMask ballLayer;         // Layer for basketballs
+    [Header("References")]
+    public Camera cam;
+    public LayerMask interactionLayer;
+    public LayerMask ballLayer;
 
+    [Header("Picker Settings")]
     [SerializeField] private float pickupRange = 3f;
     public float forceMultiplier = 0.5f;
 
     [Header("Safe Zone Settings")]
     public SafeZone safeZone = new SafeZone();
 
+    [Header("Hold Offset (meters)")]
+    public float holdForwardOffset = 0.5f;
+
+    private float dragStartTime;
+    public float dragResetTime = 0.5f;
+
     private BasketBall selectedBall;
     private Vector2 startTouchPos;
     private float startTime;
 
-    // Interaction plane data
     private bool hasPlane = false;
     private Vector3 planeCenter;
     private Vector3 planeNormal;
@@ -34,17 +41,17 @@ public class BallPicker : MonoBehaviour
 
     void Update()
     {
+        if (cam == null) cam = Camera.main;
         HandleInput();
     }
 
     void HandleInput()
     {
-        // Touch input
+        // Touch
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             Vector2 touchPos = touch.position;
-
             switch (touch.phase)
             {
                 case TouchPhase.Began:
@@ -64,7 +71,7 @@ public class BallPicker : MonoBehaviour
             }
         }
 
-        // Mouse input
+        // Mouse
         if (Input.GetMouseButtonDown(0))
         {
             startTouchPos = Input.mousePosition;
@@ -86,14 +93,19 @@ public class BallPicker : MonoBehaviour
     void TrySelectBall(Vector2 screenPosition)
     {
         if (!SetupInteractionPlane()) return;
+        if (cam == null) return;
 
         if (Physics.Raycast(cam.ScreenPointToRay(screenPosition), out RaycastHit ballHit, 100f, ballLayer))
         {
-            float distanceToBall = Vector3.Distance(cam.transform.position, ballHit.point);
-            if (distanceToBall <= pickupRange)
+            if (Vector3.Distance(cam.transform.position, ballHit.point) <= pickupRange)
             {
                 selectedBall = ballHit.collider.GetComponent<BasketBall>();
-                selectedBall?.OnTouch(screenPosition);
+                if (selectedBall != null)
+                {
+                    selectedBall.OnTouch(screenPosition);
+                    startTouchPos = screenPosition;
+                    dragStartTime = Time.time;
+                }
             }
         }
     }
@@ -102,6 +114,13 @@ public class BallPicker : MonoBehaviour
     {
         if (selectedBall == null) return;
         if (!hasPlane && !SetupInteractionPlane()) return;
+        if (cam == null) cam = Camera.main;
+
+        if (Time.time - dragStartTime > dragResetTime)
+        {
+            startTouchPos = screenPosition;
+            dragStartTime = Time.time;
+        }
 
         Ray ray = cam.ScreenPointToRay(screenPosition);
         Plane plane = new Plane(planeNormal, planeCenter);
@@ -110,19 +129,13 @@ public class BallPicker : MonoBehaviour
         {
             Vector3 hitPoint = ray.GetPoint(enter);
 
-            // Convert to local coordinates on the plane
             Vector3 offset = hitPoint - planeCenter;
-            float localX = Vector3.Dot(offset, planeRight);
-            float localY = Vector3.Dot(offset, planeUp);
+            float localX = Mathf.Clamp(Vector3.Dot(offset, planeRight), safeZone.left, safeZone.right);
+            float localY = Mathf.Clamp(Vector3.Dot(offset, planeUp), safeZone.bottom, safeZone.top);
 
-            // Clamp position within safe zone
-            localX = Mathf.Clamp(localX, safeZone.left, safeZone.right);
-            localY = Mathf.Clamp(localY, safeZone.bottom, safeZone.top);
-
-            // Convert back to world space
             Vector3 clampedWorldPos = planeCenter + planeRight * localX + planeUp * localY;
-
-            selectedBall.OnHold(clampedWorldPos);
+            Vector3 forwardOffset = cam.transform.forward * holdForwardOffset;
+            selectedBall.OnHold(clampedWorldPos + forwardOffset);
         }
     }
 
@@ -130,6 +143,7 @@ public class BallPicker : MonoBehaviour
     {
         if (selectedBall == null) return;
         if (!SetupInteractionPlane()) return;
+        if (cam == null) cam = Camera.main;
 
         Ray ray = cam.ScreenPointToRay(screenPosition);
         Plane plane = new Plane(planeNormal, planeCenter);
@@ -138,55 +152,51 @@ public class BallPicker : MonoBehaviour
         {
             Vector3 hitPoint = ray.GetPoint(enter);
             Vector3 direction = (hitPoint - cam.transform.position).normalized;
-            Vector3 throwDirection = (direction + Vector3.up * 1.2f).normalized;
 
-            float dragDistance = dragVector.magnitude;
-            float clampedDuration = Mathf.Clamp(dragDuration, 0.05f, 0.5f);
-            float dragSpeed = dragDistance / clampedDuration;
-            float calculatedForce = dragSpeed * forceMultiplier;
+            // Force horizontal aiming, ignore extreme Y from ball position
+            direction.y = 0;
+            direction.Normalize();
 
-            selectedBall.OnRelease(throwDirection, calculatedForce);
+            // Add controlled arc height
+            Vector3 throwDirection = (direction + Vector3.up * selectedBall.arcHeight).normalized;
+            // Only use upward swipe distance for force
+            float swipeThreshold = 50f;
+
+            float verticalDrag = dragVector.y;
+            float calculatedForce = 0f;
+
+            if (verticalDrag > swipeThreshold)
+            {
+                float dragSpeed = verticalDrag / Mathf.Clamp(dragDuration, 0.05f, 0.5f);
+                calculatedForce = dragSpeed * forceMultiplier;
+                selectedBall.OnRelease(throwDirection, calculatedForce);
+            }
+            else
+            {
+                selectedBall.OnRelease(Vector3.zero, 0f);
+            }
+
             selectedBall = null;
         }
     }
 
-    // Detect and set up interaction plane
+
     bool SetupInteractionPlane()
     {
+        if (cam == null) cam = Camera.main;
+        if (cam == null) return false;
+
         Ray ray = cam.ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, interactionLayer))
         {
-            planeCenter = hit.collider.bounds.center; // Use collider center
+            planeCenter = hit.collider.bounds.center;
             planeNormal = hit.normal;
-
-            // Create right/up vectors on the plane
             planeRight = Vector3.Cross(Vector3.up, planeNormal).normalized;
             if (planeRight.sqrMagnitude < 0.001f) planeRight = cam.transform.right;
             planeUp = Vector3.Cross(planeNormal, planeRight).normalized;
-
             hasPlane = true;
             return true;
         }
         return false;
     }
-
-#if UNITY_EDITOR
-    void OnDrawGizmos()
-    {
-        if (hasPlane)
-        {
-            // Draw safe zone rectangle on the interaction plane
-            Vector3 topLeft = planeCenter + planeRight * safeZone.left + planeUp * safeZone.top;
-            Vector3 topRight = planeCenter + planeRight * safeZone.right + planeUp * safeZone.top;
-            Vector3 bottomRight = planeCenter + planeRight * safeZone.right + planeUp * safeZone.bottom;
-            Vector3 bottomLeft = planeCenter + planeRight * safeZone.left + planeUp * safeZone.bottom;
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(topLeft, topRight);
-            Gizmos.DrawLine(topRight, bottomRight);
-            Gizmos.DrawLine(bottomRight, bottomLeft);
-            Gizmos.DrawLine(bottomLeft, topLeft);
-        }
-    }
-#endif
 }
