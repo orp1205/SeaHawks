@@ -1,0 +1,4 @@
+name,ballMass,ballRadius,dragCoefficient,airDensity,spinFactor,initialSpinX,initialSpinY,initialSpinZ,ballMeshPath
+Standard,0.62,0.12,0.47,1.225,0.0004,0,-30,0,ball1
+Lightweight,0.4,0.12,0.45,1.225,0.0003,0,-20,0,ball0
+Heavy,1,0.12,0.5,1.225,0.0005,0,-40,0,ball2

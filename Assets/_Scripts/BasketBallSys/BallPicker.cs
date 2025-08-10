@@ -18,7 +18,6 @@ public class BallPicker : MonoBehaviour
 
     [Header("Picker Settings")]
     [SerializeField] private float pickupRange = 3f;
-    public float forceMultiplier = 0.5f;
 
     [Header("Safe Zone Settings")]
     public SafeZone safeZone = new SafeZone();
@@ -26,8 +25,12 @@ public class BallPicker : MonoBehaviour
     [Header("Hold Offset (meters)")]
     public float holdForwardOffset = 0.5f;
 
+    [Header("Throw Settings")]
+    public float swipeThreshold = 50f;
     private float dragStartTime;
     public float dragResetTime = 0.5f;
+    public float forceMax = 10f;
+    public float forceMultiplier = 0.5f;
 
     private BasketBall selectedBall;
     private Vector2 startTouchPos;
@@ -150,31 +153,28 @@ public class BallPicker : MonoBehaviour
 
         if (plane.Raycast(ray, out float enter))
         {
-            Vector3 hitPoint = ray.GetPoint(enter);
-            Vector3 direction = (hitPoint - cam.transform.position).normalized;
+            // Determine throw direction based on swipe
+            Vector3 camForward = cam.transform.forward;
+            camForward.y = 0; // Base forward on camera's horizontal view
 
-            // Force horizontal aiming, ignore extreme Y from ball position
-            direction.y = 0;
-            direction.Normalize();
+            // Horizontal angle from swipe X
+            float horizontalFactor = Mathf.Clamp(dragVector.x / Screen.width, -0.5f, 0.5f);
+            Quaternion horizontalRotation = Quaternion.Euler(0, horizontalFactor * 90f, 0);
 
-            // Add controlled arc height
-            Vector3 throwDirection = (direction + Vector3.up * selectedBall.arcHeight).normalized;
-            // Only use upward swipe distance for force
-            float swipeThreshold = 50f;
+            // Vertical arc from swipe Y
+            Vector3 throwDirection = horizontalRotation * camForward + Vector3.up * selectedBall.arcHeight;
+            throwDirection.Normalize();
 
-            float verticalDrag = dragVector.y;
-            float calculatedForce = 0f;
+            // Calculate force
+            float verticalDrag = Mathf.Max(0, dragVector.y);
+            float dragSpeed = verticalDrag / Mathf.Clamp(dragDuration, 0.05f, 0.5f);
+            float calculatedForce = Mathf.Min(dragSpeed * forceMultiplier, forceMax);
 
+            // Release
             if (verticalDrag > swipeThreshold)
-            {
-                float dragSpeed = verticalDrag / Mathf.Clamp(dragDuration, 0.05f, 0.5f);
-                calculatedForce = dragSpeed * forceMultiplier;
                 selectedBall.OnRelease(throwDirection, calculatedForce);
-            }
             else
-            {
                 selectedBall.OnRelease(Vector3.zero, 0f);
-            }
 
             selectedBall = null;
         }

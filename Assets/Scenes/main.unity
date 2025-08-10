@@ -185,7 +185,7 @@ MonoBehaviour:
   ballMass: 0.62
   ballRadius: 0.12
   dragCoefficient: 0.47
-  airDensity: 1.5
+  airDensity: 1.225
   spinFactor: 0.0004
   initialSpin: {x: 0, y: -30, z: 0}
   arcHeight: 1.2
@@ -296,6 +296,56 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!1 &692970962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 692970964}
+  - component: {fileID: 692970963}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &692970963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692970962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cfeb162f28729b45bbcebba73f2f698, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  basketBallSO: {fileID: 11400000, guid: 67158d491a25d924087aaceae8f61dcd, type: 2}
+  ballBasePrefab: {fileID: 7304112009356151134, guid: 756949daa752a1a4798249b30039be65, type: 3}
+  radius: 3
+  minScale: 1
+  selectedScale: 1.8
+  dragSpeed: 5
+--- !u!4 &692970964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692970962}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 5, z: -15}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1363848413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,7 +361,7 @@ MonoBehaviour:
   ballMass: 0.62
   ballRadius: 0.12
   dragCoefficient: 0.47
-  airDensity: 1.5
+  airDensity: 1.225
   spinFactor: 0.0004
   initialSpin: {x: 0, y: -30, z: 0}
   arcHeight: 1.2
@@ -352,7 +402,7 @@ MonoBehaviour:
   ballMass: 0.62
   ballRadius: 0.12
   dragCoefficient: 0.47
-  airDensity: 1.5
+  airDensity: 1.225
   spinFactor: 0.0004
   initialSpin: {x: 0, y: -30, z: 0}
   arcHeight: 1.2
@@ -5367,7 +5417,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4195962933d2bfc200000000000000f9, type: 2}
+  - {fileID: 2100000, guid: 4d6696293f21bfc200000000000000f6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6829,14 +6879,16 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   pickupRange: 25
-  forceMultiplier: 0.2
   safeZone:
     left: -3
     right: 3
     top: 4
     bottom: -8
   holdForwardOffset: 2
+  swipeThreshold: 50
   dragResetTime: 0.4
+  forceMax: 70
+  forceMultiplier: 0.2
 --- !u!120 &2878013520044098368
 LineRenderer:
   serializedVersion: 2
@@ -7413,7 +7465,7 @@ MonoBehaviour:
   ballMass: 0.62
   ballRadius: 0.12
   dragCoefficient: 0.47
-  airDensity: 1.5
+  airDensity: 1.225
   spinFactor: 0.0004
   initialSpin: {x: 0, y: -30, z: 0}
   arcHeight: 1.2
@@ -7432,7 +7484,7 @@ MonoBehaviour:
   ballMass: 0.62
   ballRadius: 0.12
   dragCoefficient: 0.47
-  airDensity: 1.5
+  airDensity: 1.225
   spinFactor: 0.0004
   initialSpin: {x: 0, y: -30, z: 0}
   arcHeight: 1.2
@@ -51974,3 +52026,4 @@ SceneRoots:
   - {fileID: 2878013518752252560}
   - {fileID: 2878013518752252569}
   - {fileID: 1837650501}
+  - {fileID: 692970964}
